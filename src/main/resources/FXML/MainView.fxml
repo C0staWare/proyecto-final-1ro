@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.sucursalbancaria.Controllers.ControlVistas.MainController">
+
+   <children>
+      <!-- Menú arriba, anclado -->
+      <MenuBar styleClass="menubar-style" AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" prefHeight="26.0">
+         <menus>
+            <Menu styleClass="menu-style" text="Archivo">
+               <items>
+                  <MenuItem fx:id="nuevoBtn" styleClass="menuitem-style" onAction="#nuevoArchivo" text="Nuevo" />
+                  <MenuItem fx:id="cargarBtn" styleClass="menuitem-style" text="Cargar" />
+                  <MenuItem styleClass="menuitem-style" text="Guardar" />
+                  <MenuItem styleClass="menuitem-style" text="Cerrar" />
+               </items>
+            </Menu>
+            <Menu styleClass="menu-style" text="Ayuda">
+               <items>
+                  <MenuItem text="About" />
+               </items>
+            </Menu>
+            <Menu styleClass="menu-style" text="Utilidad">
+               <items>
+                  <MenuItem text="Action 1" />
+               </items>
+            </Menu>
+         </menus>
+      </MenuBar>
+
+      <TabPane AnchorPane.topAnchor="26.0" AnchorPane.leftAnchor="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="200.0">
+         <tabs>
+            <Tab text="Empresas" closable="false">
+               <content>
+                  <TableView fx:id="tablaEmpresas">
+                     <columns>
+                        <TableColumn text="Nombre"/>
+                        <TableColumn text="Valor del credito"/>
+                        <TableColumn text="Dirección"/>
+                        <TableColumn text="Director"/>
+                        <TableColumn text="Direccion del Director"/>
+                        <TableColumn text="Ganancia Promedio Anual"/>
+                        <TableColumn text="Cantidad de Trabajadores"/>
+                        <TableColumn text="Ministerio"/>
+                        <TableColumn text="Codigo"/>
+                     </columns>
+                  </TableView>
+               </content>
+            </Tab>
+            <Tab text="Personas" closable="false">
+               <content>
+                  <TableView fx:id="tablaPersonas">
+                     <columns>
+                        <TableColumn text="Nombre"/>
+                        <TableColumn text="Valor del Credito"/>
+                        <TableColumn text="Direccion"/>
+                        <TableColumn text="CI"/>
+                        <TableColumn text="Salario del nucleo familiar"/>
+                        <TableColumn text="Personas que sustenta"/>
+                     </columns>
+                  </TableView>
+               </content>
+            </Tab>
+            <Tab text="Solicitudes" closable="false">
+               <content>
+                  <TableView fx:id="tablaSolicitudes">
+                     <columns>
+                        <TableColumn text="Tipo"/>
+                        <TableColumn text="Estado"/>
+                        <TableColumn text="A nombre de"/>
+                        <TableColumn text="Mensualidad"/>
+                     </columns>
+                  </TableView>
+               </content>
+            </Tab>
+         </tabs>
+      </TabPane>
+
+      <!-- VBox a la derecha, anclado -->
+      <VBox styleClass="vbox-style" AnchorPane.topAnchor="26.0" AnchorPane.rightAnchor="0.0" AnchorPane.bottomAnchor="0.0" prefWidth="200.0">
+         <children>
+            <Button styleClass="button-style" text="Añadir Empresa" maxWidth="Infinity"/>
+            <Button styleClass="button-style" text="Añadir Persona" maxWidth="Infinity"/>
+            <Button styleClass="button-style" text="Solicitud de Crédito" maxWidth="Infinity"/>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>

@@ -1,0 +1,11 @@
+
+#configuracion del ide
+/.vscode/
+
+#clases compiladas
+target/
+
+#dependencias
+.jar
+.war
+.ear
