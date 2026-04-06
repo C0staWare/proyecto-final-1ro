@@ -15,7 +15,7 @@ public class SolicitudPersonal implements SolicitudCredito<Persona> {
     }
 
     @Override
-    public double calcularMensualidad() {
+    public double getMensualidad() {
         
         double capacidadPago = persona.capacidadPago();
 
@@ -31,7 +31,33 @@ public class SolicitudPersonal implements SolicitudCredito<Persona> {
         return id;
     }
 
+    @Override
+
+    public Persona getSolicitante(){
+
+        return persona;
+    }
+
     public Persona getPersona(){
         return persona;
+    }
+
+    @Override
+    public String getTipoSolicitud(){
+
+        return "Personal";
+    }
+
+    @Override
+    public String getNombreSolicitante(){
+
+        return persona.getNombreSolicitante();
+    }
+
+    @Override
+    public String getEstadoSolicitud(){
+
+        if(persona.capacidadPago() < 100) return "Rechazada";
+        else return "Aprobada";
     }
 }

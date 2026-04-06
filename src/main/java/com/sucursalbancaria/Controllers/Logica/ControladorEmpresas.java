@@ -19,6 +19,7 @@ public class ControladorEmpresas {
 
         if(!listaEmpresas.contains(empresa)){
 
+            empresa.comprobarRequisitoGanancia();
             listaEmpresas.add(empresa);
             System.out.println("Empresa agregada con exito");
         }

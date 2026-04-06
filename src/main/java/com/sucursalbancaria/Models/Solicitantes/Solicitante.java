@@ -12,10 +12,10 @@ public abstract class Solicitante {
 
     public Solicitante(String nombreSolicitante, double valorCredito, String direccionSolicitante) throws Exception {
 
-        //if(nombreSolicitante == null || direccionSolicitante == null){
+        if(nombreSolicitante == null || direccionSolicitante == null){
 
-        //    throw new Exception("Todos los campos son Obligatorios");
-        //}
+            throw new Exception("Todos los campos son Obligatorios");
+        }
 
         this.nombreSolicitante = nombreSolicitante;
         this.valorCredito = valorCredito;

@@ -39,7 +39,7 @@
          </menus>
       </MenuBar>
 
-      <TabPane AnchorPane.topAnchor="26.0" AnchorPane.leftAnchor="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="200.0">
+      <TabPane fx:id="tabPaneObject" AnchorPane.topAnchor="26.0" AnchorPane.leftAnchor="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="200.0">
          <tabs>
             <Tab text="Empresas" closable="false">
                <content>
@@ -90,8 +90,9 @@
       <!-- VBox a la derecha, anclado -->
       <VBox styleClass="vbox-style" AnchorPane.topAnchor="26.0" AnchorPane.rightAnchor="0.0" AnchorPane.bottomAnchor="0.0" prefWidth="200.0">
          <children>
-            <Button fx:id="nuevaEmpresa" onAction="#agregarEmpresa" styleClass="button-style" text="Añadir Empresa" maxWidth="Infinity"/>
-            <Button fx:id="nuevaPersona" onAction="#agregarPersona" styleClass="button-style" text="Añadir Persona" maxWidth="Infinity"/>
+            <Button fx:id="nuevaFila" onAction="#agregarFila" styleClass="button-style" text="Añadir Fila" maxWidth="Infinity" />
+            <Button fx:id="eliminarFila" onAction="#eliminarFilaSeleccionada" styleClass="button-style" text="Eliminar Fila" maxWidth="Infinity" />
+            <Button fx:id="guardarFilas" onAction="#guardarSolicitante" styleClass="button-style" text="Guardar Filas" maxWidth="Infinity"/>
             <Button fx:id="nevaSolicitud" onAction="#agregarSolicitud" styleClass="button-style" text="Solicitud de Crédito" maxWidth="Infinity"/>
          </children>
       </VBox>

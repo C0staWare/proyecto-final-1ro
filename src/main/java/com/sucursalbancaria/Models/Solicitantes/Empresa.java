@@ -15,19 +15,15 @@ public class Empresa extends Solicitante {
         nombreDirector = "";
         direccionDirector = "";
         gananciaPromedioAnual = 0.0;
-        cantidadTrabajadores = 0;
+        cantidadTrabajadores = 1;
         ministerio = "";
-        codigo = 0L;
+        codigo = 0l;
     }
     public Empresa(String nombreSolicitante, double valorCredito, String direccionSolicitante,
             String nombreDirector, String direccionDirector, double gananciaPromedioAnual, int cantidadTrabajadores,
             String ministerio, Long codigo) throws Exception {
 
         super(nombreSolicitante, valorCredito, direccionSolicitante);
-
-        if(nombreDirector == null || direccionDirector == null || ministerio == null){
-            throw new Exception("Todos los campos son obligatorios");
-        }
 
         this.nombreDirector = nombreDirector;
         this.direccionDirector = direccionDirector;
@@ -36,9 +32,7 @@ public class Empresa extends Solicitante {
         this.ministerio = ministerio;
         this.codigo = codigo;
     
-        if(tipoEmpresa().equals("pequena") & gananciaPromedioAnual <= 1000)throw new Exception("La empresa no cumple el requicito: Ganancia Promedio Anual");
-        else if(tipoEmpresa().equals("mediana") & gananciaPromedioAnual > 1000 & gananciaPromedioAnual <= 5000)throw new Exception("La empresa no cumple el requicito: Ganancia Promedio Anual");
-        else if(tipoEmpresa().equals("grande") & gananciaPromedioAnual <= 10000) throw new Exception("La empresa no cumple el requicito: Ganancia Promedio Anual");
+        
     }
 
     public String tipoEmpresa(){
@@ -49,7 +43,13 @@ public class Empresa extends Solicitante {
 
     }
 
+    public void comprobarRequisitoGanancia() throws Exception {
 
+        if(tipoEmpresa().equals("pequena") & gananciaPromedioAnual <= 1000)throw new Exception("La empresa no cumple el requicito: Ganancia Promedio Anual");
+        else if(tipoEmpresa().equals("mediana") & gananciaPromedioAnual > 1000 & gananciaPromedioAnual <= 5000)throw new Exception("La empresa no cumple el requicito: Ganancia Promedio Anual");
+        else if(tipoEmpresa().equals("grande") & gananciaPromedioAnual <= 10000) throw new Exception("La empresa no cumple el requicito: Ganancia Promedio Anual");
+
+    }
 
     public String getNombreDirector() {
         return nombreDirector;

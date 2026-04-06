@@ -5,7 +5,11 @@ import com.sucursalbancaria.Models.Solicitantes.Solicitante;
 
 public interface SolicitudCredito<T extends Solicitante> {
 
-    public double calcularMensualidad();
+    public double getMensualidad();
     public Long getId();
+    public T getSolicitante();
+    public String getTipoSolicitud();
+    public String getNombreSolicitante();
+    public String getEstadoSolicitud();
     
 }
