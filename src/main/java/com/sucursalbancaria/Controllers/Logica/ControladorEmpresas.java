@@ -68,9 +68,19 @@ public class ControladorEmpresas {
         return null;
     }
     //ordenar por ministerio y codigo
-    public void ordenarMinisterioCodigo(){
+    public void ordenarMinisterioCodigo(List<Empresa> lista){
 
-        listaEmpresas.sort(Comparator.comparing(Empresa::getMinisterio).thenComparing(Empresa::getCodigo));
+        lista.sort(Comparator.comparing(Empresa::getMinisterio).thenComparing(Empresa::getCodigo));
+
+    }
+
+    public List<Empresa> puedenRecibirCredito(){
+
+        List<Empresa> listaOrdenada = listaEmpresas;
+
+        ordenarMinisterioCodigo(listaOrdenada);
+
+        return listaOrdenada;
 
     }
 

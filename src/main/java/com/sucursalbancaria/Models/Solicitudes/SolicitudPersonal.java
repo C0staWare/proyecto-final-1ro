@@ -21,7 +21,7 @@ public class SolicitudPersonal implements SolicitudCredito<Persona> {
 
         if(capacidadPago >= 100 & capacidadPago <= 120 ) mensualidad = 30.0;
         else if(capacidadPago > 120 & capacidadPago <= 140) mensualidad = 40.0;
-        else mensualidad = 50;
+        else mensualidad = 50.0;
         
         return mensualidad;
     }

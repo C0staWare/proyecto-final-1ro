@@ -34,6 +34,10 @@
             <Menu styleClass="menu-style" text="Utilidad">
                <items>
                   <MenuItem fx:id="cambiarEstilo" text="Cambiar Estilo Visual" onAction="#cambiarCSS" />
+                  <MenuItem text="Personas que pueden recibir créditos" onAction="#rendPersonasAcreditables" />
+                  <MenuItem text="Empresas que pueden recibir créditos" onAction="#rendEmpresasAcreditables" />
+                  <MenuItem fx:id="personasTiempo" text="Personas - Tiempo que demorarán en pagar"  />
+                  <MenuItem fx:id="empresasTiempo" text="Empresas - Tiempo que demorarán en pagar" />
                </items>
             </Menu>
          </menus>

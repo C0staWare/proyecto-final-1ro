@@ -2,7 +2,9 @@ package com.sucursalbancaria.Controllers.Logica;
 
 
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import com.sucursalbancaria.Models.Solicitantes.Persona;
 
@@ -62,6 +64,18 @@ public class ControladorPersonas {
             }
             else right = mid - 1;
         }
+    }
+
+    public List<Persona> puedenRecibirCredito(){
+
+        List<Persona> listaOrdenada = listaPersonas;
+
+        ordenarPorCI(listaOrdenada, 0, listaOrdenada.size() - 1);
+
+        return listaOrdenada.stream().
+                            filter(persona -> persona.capacidadPago() > 100)
+                            .collect(Collectors.toList());
+
     }
 
 

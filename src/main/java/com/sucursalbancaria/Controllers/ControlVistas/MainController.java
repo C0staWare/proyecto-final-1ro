@@ -49,6 +49,12 @@ public class MainController {
     MenuItem nuevoBtn;
 
     @FXML
+    MenuItem personasTiempo;
+    
+    @FXML
+    MenuItem empresasTiempo;
+
+    @FXML
     TableView<Empresa> tablaEmpresas;
     
     @FXML
@@ -90,6 +96,9 @@ public class MainController {
         tablaSolicitudes.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         tablaSolicitudes.setItems(FXCollections.observableArrayList());
         configurarColumnas(tablaSolicitudes, nombresColumnasSolicitud(), SolicitudEmpresarial.class);
+
+        manejarAccionBotonesTiempo(personasTiempo);
+        manejarAccionBotonesTiempo(empresasTiempo);
         
     }
 
@@ -349,7 +358,6 @@ public class MainController {
         }
     }
 
-
     @FXML
     public void nuevoArchivo() throws IOException {
 
@@ -394,9 +402,151 @@ public class MainController {
 
     }
 
-    
+    @FXML
+    public void rendPersonasAcreditables(){
 
+        Tab existente = tabPaneObject.getTabs()
+                                    .stream()
+                                    .filter(t -> "Personas que pueden recibir créditos".equals(t.getText()))
+                                    .findFirst().orElse(null);
+
+        if(existente == null){
+            Tab tab = new Tab();
+
+            TableView<Persona> personasAcreditables = new TableView<>();
+            TableColumn<Persona, String> columnaNombre = new TableColumn<>("Nombre");
+            TableColumn<Persona, Long> columnaCI = new TableColumn<>("CI");
+            
+            
+            personasAcreditables.getColumns().addAll(columnaNombre, columnaCI);
+            personasAcreditables.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+            
+            personasAcreditables.getItems().setAll(sucursalBancaria.controladorPersonas.puedenRecibirCredito());
+            
+            columnaNombre.setCellValueFactory(new PropertyValueFactory<>("nombreSolicitante"));
+            columnaCI.setCellValueFactory(new PropertyValueFactory<>("CI"));
+
+            tab.setContent(personasAcreditables);
+
+            tab.setText("Personas que pueden recibir créditos");
+
+            tabPaneObject.getTabs().add(tab);
+
+        }
+
+    }
+
+    @FXML
+    public void rendEmpresasAcreditables(){
+
+        Tab existente = tabPaneObject.getTabs()
+                                    .stream().filter(t -> "Empresas que pueden recibir créditos".equals(t.getText()))
+                                    .findFirst().orElse(null);
+
+        if(existente == null){
+
+            Tab tab = new Tab();
+
+            TableView<Empresa> empresasAcreditables = new TableView<>();
+            TableColumn<Empresa, String> columnaNombre = new TableColumn<>("Nombre");
+            TableColumn<Empresa, String> columnaMinisterio = new TableColumn<>("Ministerio");
+            TableColumn<Empresa, Long> columnaCodigo = new TableColumn<>("Código");
+
+            empresasAcreditables.getColumns().addAll(columnaNombre, columnaMinisterio, columnaCodigo);
+            empresasAcreditables.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+
+            empresasAcreditables.getItems().setAll(sucursalBancaria.controladorEmpresas.puedenRecibirCredito());
+
+            columnaNombre.setCellValueFactory(new PropertyValueFactory<>("nombreSolicitante"));
+            columnaMinisterio.setCellValueFactory(new PropertyValueFactory<>("ministerio"));
+            columnaCodigo.setCellValueFactory(new PropertyValueFactory<>("codigo"));
+
+            tab.setContent(empresasAcreditables);
+
+            tab.setText("Empresas que pueden recibir créditos");
+
+            tabPaneObject.getTabs().add(tab);
+
+        }
+    }
+
+    public void demoraPago(String texto){
+
+        if(texto.equals("Personas - Tiempo que demorarán en pagar")) {
+
+            Tab existente = tabPaneObject.getTabs()
+                                            .stream()
+                                            .filter(t -> "Personas - Tiempo que demorarán en pagar".equals(t.getText()))
+                                            .findFirst()
+                                            .orElse(null);
+
+            if(existente == null){
+                Tab tab  = new Tab();
+
+                TableView<Persona> personas = new TableView<>();
+                TableColumn<Persona, String> columnaNombre = new TableColumn<>("Nombre");
+                TableColumn<Persona, Integer> columnaTiempo = new TableColumn<>("Tiempo que demorará en pagar(Días)");
+
+                personas.getColumns().addAll(columnaNombre, columnaTiempo);
+                personas.getItems().setAll(tablaPersonas.getItems());
+
+                personas.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+
+                columnaNombre.setCellValueFactory(new PropertyValueFactory<>("nombreSolicitante"));
+                columnaTiempo.setCellValueFactory(new PropertyValueFactory<>("demoraPago"));
+
+                tab.setContent(personas);
+
+                tab.setText("Personas - Tiempo que demorarán en pagar");
+
+                tabPaneObject.getTabs().add(tab);
+
+            }
+        }
+        else if(texto.equals("Empresas - Tiempo que demorarán en pagar")) {
+
+            Tab existente = tabPaneObject.getTabs()
+                                            .stream()
+                                            .filter(t -> "Empresas - Tiempo que demorarán en pagar".equals(t.getText()))
+                                            .findFirst()
+                                            .orElse(null);
+            
+            if(existente == null){
+
+                Tab tab = new Tab();
+
+                TableView<Empresa> empresas = new TableView<>();
+                TableColumn<Empresa, String> columnaNombre = new TableColumn<>("Nombre");
+                TableColumn<Empresa, Integer> columnaTiempo = new TableColumn<>("Tiempo que demorarán en pagar(Días)");
+
+                empresas.getColumns().addAll(columnaNombre, columnaTiempo);
+                empresas.getItems().setAll(tablaEmpresas.getItems());
+
+                empresas.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+
+                columnaNombre.setCellValueFactory(new PropertyValueFactory<>("nombreSolicitante"));
+                columnaTiempo.setCellValueFactory(new PropertyValueFactory<>("demoraPago"));
+
+                tab.setContent(empresas);
+
+                tab.setText("Empresas - Tiempo que demorarán en pagar");
+
+                tabPaneObject.getTabs().add(tab);
+
+            }
+        }
+
+    }
     //UTILIDAD
+
+    public void manejarAccionBotonesTiempo(MenuItem menuItem){
+
+        menuItem.setOnAction(event -> {
+
+            demoraPago(menuItem.getText());
+        });
+
+    }
 
     public boolean tieneCamposValidos(Empresa e){
 

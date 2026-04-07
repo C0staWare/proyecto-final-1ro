@@ -51,6 +51,30 @@ public class Empresa extends Solicitante {
 
     }
 
+    public double calcularMensualidad(){
+
+        double mensualidad;
+
+        String tipoEmpresa = tipoEmpresa();
+
+        double promedioAnual = getGananciaPromedioAnual();
+
+        if(tipoEmpresa.equals("pequena")) mensualidad = promedioAnual * 0.2;
+        else if(tipoEmpresa.equals("mediana")) mensualidad = promedioAnual * 0.3;
+        else mensualidad = promedioAnual * 0.4;
+
+        return mensualidad;
+    }
+
+    public int getDemoraPago(){
+
+        int resultado = 0;
+
+        resultado = (int)(super.getValorCredito() / calcularMensualidad());
+
+        return resultado;
+    }
+
     public String getNombreDirector() {
         return nombreDirector;
     }
