@@ -7,24 +7,14 @@ import java.util.List;
 
 import com.sucursalbancaria.Models.Solicitantes.Empresa;
 import com.sucursalbancaria.Models.Solicitudes.SolicitudCredito;
-import com.sucursalbancaria.Models.Solicitudes.SolicitudEmpresarial;
 
-public class ControladorSolicitudEmpresarial implements ControladorSolicitud<Empresa> {
+public class ControladorSolicitudEmpresarial {
     
     List<SolicitudCredito<Empresa>> listaSolicitudesEmpresas;
 
     public ControladorSolicitudEmpresarial() { listaSolicitudesEmpresas = new ArrayList<>(); }
 
-    @Override
-    public boolean existeSolicitud(Empresa empresa) {
-        return listaSolicitudesEmpresas.stream()
-            .filter(s -> s instanceof SolicitudEmpresarial)
-            .map(s -> (SolicitudEmpresarial) s)
-            .anyMatch(s -> s.getEmpresa().getCodigo().equals(empresa.getCodigo()));
-    }
-
     //crear
-    @Override
     public void crearSolicitud(SolicitudCredito<Empresa> solicitud) throws Exception{
         
         if(!listaSolicitudesEmpresas.contains(solicitud)) listaSolicitudesEmpresas.add(solicitud);
@@ -32,7 +22,6 @@ public class ControladorSolicitudEmpresarial implements ControladorSolicitud<Emp
         else throw new Exception("La solicitud ya existe");
     }
     //eliminar
-    @Override
     public void eliminarSolicitud(SolicitudCredito<Empresa> solicitud) throws Exception {
         
         if(listaSolicitudesEmpresas.contains(solicitud)) listaSolicitudesEmpresas.remove(solicitud);
@@ -40,7 +29,6 @@ public class ControladorSolicitudEmpresarial implements ControladorSolicitud<Emp
         else throw new Exception("No se encontro esa solicitud");
     }
     //editar
-    @Override
     public void editarSolicitud(SolicitudCredito<Empresa> solicitud) {
 
         Collections.sort(listaSolicitudesEmpresas, Comparator.comparingLong(SolicitudCredito<Empresa>::getId));
@@ -67,7 +55,6 @@ public class ControladorSolicitudEmpresarial implements ControladorSolicitud<Emp
         }
     }   
     //listar
-    @Override
     public List<SolicitudCredito<Empresa>> listarSolicitudes() {
         
         if(listaSolicitudesEmpresas != null) return listaSolicitudesEmpresas; 

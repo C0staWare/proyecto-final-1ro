@@ -4,6 +4,7 @@ package com.sucursalbancaria.Controllers.Logica;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import com.sucursalbancaria.Models.Solicitantes.Persona;
 
@@ -66,7 +67,7 @@ public class ControladorPersonas {
 
     public List<Persona> puedenRecibirCredito(){
 
-        List<Persona> listaOrdenada = new ArrayList<>(listaPersonas);
+        List<Persona> listaOrdenada = listaPersonas;
 
         ordenarPorCI(listaOrdenada, 0, listaOrdenada.size() - 1);
 

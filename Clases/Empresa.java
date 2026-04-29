@@ -57,11 +57,11 @@ public class Empresa extends Solicitante {
 
         String tipoEmpresa = tipoEmpresa();
 
-        double valorCredito = getValorCredito();
+        double promedioAnual = getGananciaPromedioAnual();
 
-        if(tipoEmpresa.equals("pequena"))  mensualidad = valorCredito * 0.2;
-        else if(tipoEmpresa.equals("mediana")) mensualidad = valorCredito * 0.3;
-        else mensualidad = valorCredito * 0.4;
+        if(tipoEmpresa.equals("pequena")) mensualidad = promedioAnual * 0.2;
+        else if(tipoEmpresa.equals("mediana")) mensualidad = promedioAnual * 0.3;
+        else mensualidad = promedioAnual * 0.4;
 
         return mensualidad;
     }

@@ -7,25 +7,15 @@ import java.util.List;
 
 import com.sucursalbancaria.Models.Solicitantes.Persona;
 import com.sucursalbancaria.Models.Solicitudes.SolicitudCredito;
-import com.sucursalbancaria.Models.Solicitudes.SolicitudPersonal;
 
 
-public class ControladorSolicitudPersonal implements ControladorSolicitud<Persona> {
+public class ControladorSolicitudPersonal {
     
     List<SolicitudCredito<Persona>> listaSolicitudesPersonas;
 
     public ControladorSolicitudPersonal() { listaSolicitudesPersonas = new ArrayList<>(); }
 
-    @Override
-    public boolean existeSolicitud(Persona persona) {
-        return listaSolicitudesPersonas.stream()
-            .filter(s -> s instanceof SolicitudPersonal)
-            .map(s -> (SolicitudPersonal) s)
-            .anyMatch(s -> s.getPersona().getCI().equals(persona.getCI()));
-    }
-
     //crear
-    @Override
     public void crearSolicitud(SolicitudCredito<Persona> solicitud) throws Exception {
         
         if(!listaSolicitudesPersonas.contains(solicitud)) listaSolicitudesPersonas.add(solicitud);
@@ -33,7 +23,6 @@ public class ControladorSolicitudPersonal implements ControladorSolicitud<Person
         else throw new Exception("La solicitud ya existe");
     }
     //eliminar
-    @Override
     public void eliminarSolicitud(SolicitudCredito<Persona> solicitud) throws Exception {
         
         if(listaSolicitudesPersonas.contains(solicitud)) listaSolicitudesPersonas.remove(solicitud);
@@ -41,7 +30,6 @@ public class ControladorSolicitudPersonal implements ControladorSolicitud<Person
         else throw new Exception("No se encontro la solicitud");
     }
     //editar
-    @Override
     public void editarSolicitud(SolicitudCredito<Persona> solicitud) {
 
         Collections.sort(listaSolicitudesPersonas, Comparator.comparingLong(SolicitudCredito<Persona>::getId));
@@ -65,9 +53,7 @@ public class ControladorSolicitudPersonal implements ControladorSolicitud<Person
             else right = mid - 1;
         }
     }
-
     //listar
-    @Override
     public List<SolicitudCredito<Persona>> listarSolicitudes() {
         
         if(listaSolicitudesPersonas != null) return listaSolicitudesPersonas;

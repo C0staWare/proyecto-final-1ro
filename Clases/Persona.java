@@ -14,7 +14,6 @@ public class Persona extends Solicitante {
         salarioNucleo = 0.0;
         personasQueSustenta = 1;
     }
-
     public Persona(String nombreSolicitante, double valorCredito, String direccionSolicitante, Long CI,
             double salarioNucleo, int personasQueSustenta) throws Exception {
 
@@ -35,7 +34,7 @@ public class Persona extends Solicitante {
 
     public double capacidadPago(){
 
-        return salarioNucleo - (personasQueSustenta * 50);
+        return this.salarioNucleo - (this.personasQueSustenta * 50);
     }
 
     public Long getCI() {

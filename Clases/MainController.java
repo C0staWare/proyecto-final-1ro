@@ -4,9 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 
 import com.sucursalbancaria.Controllers.Logica.SucursalBancaria;
 import com.sucursalbancaria.Models.Solicitantes.Empresa;
@@ -15,33 +15,28 @@ import com.sucursalbancaria.Models.Solicitantes.Solicitante;
 import com.sucursalbancaria.Models.Solicitudes.SolicitudCredito;
 import com.sucursalbancaria.Models.Solicitudes.SolicitudEmpresarial;
 import com.sucursalbancaria.Models.Solicitudes.SolicitudPersonal;
-import com.sucursalbancaria.Controllers.Logica.ControladorSolicitud;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.util.Callback;
 import javafx.util.converter.DoubleStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 import javafx.util.converter.LongStringConverter;
 
 public class MainController {
-
     
     SucursalBancaria sucursalBancaria = new SucursalBancaria();
 
@@ -107,23 +102,118 @@ public class MainController {
 
     public <T> void configurarColumnas(TableView<?> tabla, Map<String, String> nombresColumnas, Class<T> clazz) {
 
-        tabla.getColumns().forEach(columna -> {
-            String nombreCampo = nombresColumnas.get(columna.getText());
-            if (nombreCampo == null) return;
+        if(clazz == SolicitudEmpresarial.class || clazz == SolicitudPersonal.class){
 
-            if (clazz == SolicitudEmpresarial.class || clazz == SolicitudPersonal.class) {
+            tabla.getColumns().forEach(columna -> {
+
+                String nombreCampo = nombresColumnas.get(columna.getText());
                 columna.setCellValueFactory(new PropertyValueFactory<>(nombreCampo));
-                return;
-            }
 
-            Field campo = buscarCampoEnJerarquia(clazz, nombreCampo);
-            if (campo == null) {
-                System.out.println("No se encontró el campo: " + nombreCampo);
-                return;
-            }
+            });
+        }
+        else{
+            tabla.getColumns().forEach(columna -> {
+                String nombreCampo = nombresColumnas.get(columna.getText());
 
-            configurarColumna(columna, campo, nombreCampo);
-        });
+                Field campoActual = null;
+
+                Class<T> claseActual = clazz;
+
+                while (claseActual != null) {
+                    
+                    try{
+                        campoActual = claseActual.getDeclaredField(nombreCampo);
+                        campoActual.setAccessible(true);
+                        break;
+                    }
+                    catch(NoSuchFieldException ex){
+
+                        claseActual = (Class<T>)claseActual.getSuperclass();
+                    }
+                }
+
+                final Field campo = campoActual;
+
+                try{
+
+                    if(campo.getType() == String.class){
+
+                        @SuppressWarnings("unchecked")
+                        TableColumn<T, String> c = (TableColumn<T, String>) columna;
+                        
+                        c.setCellValueFactory(new PropertyValueFactory<>(nombreCampo));
+                        c.setCellFactory(TextFieldTableCell.forTableColumn());
+                        c.setOnEditCommit(e -> {
+                            try{
+                                campo.set(e.getRowValue(), e.getNewValue());
+                            }
+                            catch(IllegalAccessException ill){
+                                System.out.println(ill.getMessage());
+                            }
+                            
+                        });
+                    }
+                    else if(campo.getType() == Double.class || campo.getType() == double.class){
+
+                        @SuppressWarnings("unchecked")
+                        TableColumn<T, Double> c = (TableColumn<T, Double>) columna;
+
+                        c.setCellValueFactory(new PropertyValueFactory<>(nombreCampo));
+                        c.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+                        c.setOnEditCommit(e -> {
+                            try{
+
+                                campo.set(e.getRowValue(), e.getNewValue());
+
+                            }catch(IllegalAccessException ill){
+
+                                System.out.println(ill.getMessage());
+                            }
+                        });
+                    }
+                    else if(campo.getType() == Integer.class || campo.getType() == int.class){
+
+                        @SuppressWarnings("unchecked")
+                        TableColumn<T, Integer> c = (TableColumn<T, Integer>) columna;
+
+                        c.setCellValueFactory(new PropertyValueFactory<>(nombreCampo));
+                        c.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
+                        c.setOnEditCommit(e -> {
+                            try{
+                                campo.set(e.getRowValue(), e.getNewValue());
+                            }catch(IllegalAccessException ill){
+
+                                System.out.println(ill.getMessage());
+                            }
+                        });
+
+                    }
+                    else if(campo.getType() == Long.class || campo.getType() == long.class){
+
+                        @SuppressWarnings("unchecked")
+                        TableColumn<T, Long> c = (TableColumn<T, Long>) columna;
+
+                        c.setCellValueFactory(new PropertyValueFactory<>(nombreCampo));
+                        c.setCellFactory(TextFieldTableCell.forTableColumn(new LongStringConverter()));
+                        c.setOnEditCommit(e -> {
+
+                            try{
+
+                                campo.set(e.getRowValue(), e.getNewValue());
+
+                            }catch(IllegalAccessException ill){
+
+                                System.out.println(ill.getMessage());
+                            }
+                        });
+                    }
+
+                }catch(ClassCastException e){
+
+                    System.out.println("Error de tipo en la columna: "+columna.getText());
+                }
+            });
+        }
     }
 
     @FXML
@@ -259,16 +349,78 @@ public class MainController {
     @FXML
     public void agregarSolicitud(){
 
+        Alert alert = new Alert(AlertType.CONFIRMATION);
+        alert.setTitle("Información");
+        alert.setHeaderText("Advertencia");
+        alert.setContentText("Este solicitante ya tiene una solicitud de crédito activa, ¿Desea sobreescribir los cambios?");
+
         Tab seleccionado = tabPaneObject.getSelectionModel().getSelectedItem();
-        String tipo = seleccionado.getText(); // "Empresas" o "Personas"
 
-        if (tipo.equals("Empresas")) {
-            manejarSolicitudEmpresa();
-        } 
-        else if (tipo.equals("Personas")) {
-            manejarSolicitudPersona();
+        if(seleccionado.getText().equals("Empresas")){
+
+            Empresa seleccionada = tablaEmpresas.getSelectionModel().getSelectedItem();
+            if (seleccionada != null && !existeSolicitudEmpresa(seleccionada)){ 
+
+                SolicitudEmpresarial solicitud = new SolicitudEmpresarial(seleccionada);
+                List<SolicitudCredito<Empresa>> listaSolicitudes = sucursalBancaria.controladorSolicitudEmpresarial.listarSolicitudes();
+                listaSolicitudes.add(solicitud);
+                tablaSolicitudes.getItems().add(solicitud);
+
+            }
+            else{
+
+                Optional<ButtonType> resultado = alert.showAndWait();
+
+                if(resultado.isPresent()){
+
+                    switch (resultado.get().getButtonData()) {
+                        case OK_DONE:
+                            SolicitudEmpresarial solicitud = new SolicitudEmpresarial(seleccionada);
+                            List<SolicitudCredito<Empresa>> listaSolicitudes = sucursalBancaria.controladorSolicitudEmpresarial.listarSolicitudes();
+                            sucursalBancaria.controladorSolicitudEmpresarial.editarSolicitud(solicitud);
+                            tablaSolicitudes.getItems().setAll(listaSolicitudes);
+                            break;
+                        case CANCEL_CLOSE:
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                
+            }
         }
+        else if(seleccionado.getText().equals("Personas")){
 
+            Persona seleccionada = tablaPersonas.getSelectionModel().getSelectedItem();
+            if(seleccionada != null && !existeSolicitudPersona(seleccionada)){
+
+                SolicitudPersonal solicitud = new SolicitudPersonal(seleccionada);
+                List<SolicitudCredito<Persona>> listaSolicitudes = sucursalBancaria.controladorSolicitudPersonal.listarSolicitudes();
+                listaSolicitudes.add(solicitud);
+                tablaSolicitudes.getItems().add(solicitud);
+
+            }
+            else{
+                Optional<ButtonType> resultado = alert.showAndWait();
+
+                if(resultado.isPresent()){
+
+                    switch (resultado.get().getButtonData()) {
+                        case OK_DONE:
+                            SolicitudPersonal solicitud = new SolicitudPersonal(seleccionada);
+                            List<SolicitudCredito<Persona>> listaSolicitudes = sucursalBancaria.controladorSolicitudPersonal.listarSolicitudes();
+                            sucursalBancaria.controladorSolicitudPersonal.editarSolicitud(solicitud);
+                            tablaSolicitudes.getItems().setAll(listaSolicitudes);
+                            break;
+                        case CANCEL_CLOSE:
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
     }
 
     @FXML
@@ -383,10 +535,8 @@ public class MainController {
         }
     }
 
-    //UTILIDAD
-
     public void demoraPago(String texto){
-    
+
         if(texto.equals("Personas - Tiempo que demorarán en pagar")) {
 
             Tab existente = tabPaneObject.getTabs()
@@ -452,8 +602,9 @@ public class MainController {
         }
 
     }
+    //UTILIDAD
 
-    private void manejarAccionBotonesTiempo(MenuItem menuItem){
+    public void manejarAccionBotonesTiempo(MenuItem menuItem){
 
         menuItem.setOnAction(event -> {
 
@@ -462,7 +613,7 @@ public class MainController {
 
     }
 
-    private boolean tieneCamposValidos(Empresa e){
+    public boolean tieneCamposValidos(Empresa e){
 
         return e.getNombreSolicitante() != null && !e.getNombreSolicitante().isEmpty()
             && e.getValorCredito() != null
@@ -476,7 +627,7 @@ public class MainController {
 
     }
 
-    private boolean tieneCamposValidos(Persona p){
+    public boolean tieneCamposValidos(Persona p){
 
         return p.getNombreSolicitante() != null && !p.getNombreSolicitante().isEmpty()
             && p.getValorCredito() != null
@@ -486,7 +637,7 @@ public class MainController {
             && p.getSalarioNucleo() > 0;
     }
 
-    private Map<String, String> nombresColumnasEmpresa() {
+    public Map<String, String> nombresColumnasEmpresa() {
         Map<String, String> nombresColumnas = new HashMap<>();
 
         nombresColumnas.put("Nombre", "nombreSolicitante");
@@ -502,7 +653,7 @@ public class MainController {
         return nombresColumnas;
     }
 
-    private Map<String, String> nombresColumnasPersona() {
+    public Map<String, String> nombresColumnasPersona() {
         Map<String, String> nombresColumnas = new HashMap<>();
 
         nombresColumnas.put("Nombre", "nombreSolicitante");
@@ -515,7 +666,7 @@ public class MainController {
         return nombresColumnas;
     }
 
-    private Map<String, String> nombresColumnasSolicitud(){
+    public Map<String, String> nombresColumnasSolicitud(){
 
         Map<String, String> nombresColumnas = new HashMap<>();
 
@@ -527,109 +678,17 @@ public class MainController {
         return nombresColumnas;
     }
 
-    private void manejarSolicitudEmpresa(){
-
-        Empresa seleccionada = tablaEmpresas.getSelectionModel().getSelectedItem();
-
-        procesarSolicitud( 
-
-            seleccionada,
-            SolicitudEmpresarial::new,
-            sucursalBancaria.controladorSolicitudEmpresarial
-        );
+    private boolean existeSolicitudEmpresa(Empresa empresa) {
+        return tablaSolicitudes.getItems().stream()
+            .filter(s -> s instanceof SolicitudEmpresarial)
+            .map(s -> (SolicitudEmpresarial) s)
+            .anyMatch(s -> s.getEmpresa().getCodigo().equals(empresa.getCodigo()));
     }
 
-    private void manejarSolicitudPersona(){
-
-        Persona seleccionada = tablaPersonas.getSelectionModel().getSelectedItem();
-
-        procesarSolicitud(
-
-            seleccionada,
-            SolicitudPersonal::new,
-            sucursalBancaria.controladorSolicitudPersonal
-        );
+    private boolean existeSolicitudPersona(Persona persona) {
+        return tablaSolicitudes.getItems().stream()
+            .filter(s -> s instanceof SolicitudPersonal)
+            .map(s -> (SolicitudPersonal) s)
+            .anyMatch(s -> s.getPersona().getCI().equals(persona.getCI()));
     }
-
-    private <T extends Solicitante> void procesarSolicitud(T solicitante, Function<T, SolicitudCredito<T>> creadorSolicitud, ControladorSolicitud<T> controlador) {
-
-        if (solicitante == null) return;
-
-        boolean existe = controlador.existeSolicitud(solicitante);
-
-        if (!existe) {
-            SolicitudCredito<T> nueva = creadorSolicitud.apply(solicitante);
-            controlador.listarSolicitudes().add(nueva);
-            tablaSolicitudes.getItems().add(nueva);
-            return;
-        }
-
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Información");
-        alert.setHeaderText("Advertencia");
-        alert.setContentText("Este solicitante ya tiene una solicitud activa. ¿Desea sobreescribirla?");
-
-        Optional<ButtonType> resultado = alert.showAndWait();
-
-        if (resultado.isPresent() && resultado.get().getButtonData() == ButtonBar.ButtonData.OK_DONE) {
-
-            SolicitudCredito<T> nueva = creadorSolicitud.apply(solicitante);
-            controlador.editarSolicitud(nueva);
-
-            tablaSolicitudes.getItems().setAll(controlador.listarSolicitudes());
-        }
-    }
-
-    private <T> Field buscarCampoEnJerarquia(Class<T> clazz, String nombreCampo) {
-        Class<?> claseActual = clazz;
-        while (claseActual != null) {
-            try {
-                Field campo = claseActual.getDeclaredField(nombreCampo);
-                campo.setAccessible(true);
-                return campo;
-            } catch (NoSuchFieldException e) {
-                claseActual = claseActual.getSuperclass();
-            }
-        }
-        return null;
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T> void configurarColumna(TableColumn<?, ?> columna, Field campo, String nombreCampo) {
-        try {
-            if (campo.getType() == String.class) {
-                TableColumn<T, String> c = (TableColumn<T, String>) columna;
-                configurarColumnaEditable(c, nombreCampo, campo, TextFieldTableCell.forTableColumn());
-            } else if (campo.getType() == Double.class || campo.getType() == double.class) {
-                TableColumn<T, Double> c = (TableColumn<T, Double>) columna;
-                configurarColumnaEditable(c, nombreCampo, campo, TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
-            } else if (campo.getType() == Integer.class || campo.getType() == int.class) {
-                TableColumn<T, Integer> c = (TableColumn<T, Integer>) columna;
-                configurarColumnaEditable(c, nombreCampo, campo, TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
-            } else if (campo.getType() == Long.class || campo.getType() == long.class) {
-                TableColumn<T, Long> c = (TableColumn<T, Long>) columna;
-                configurarColumnaEditable(c, nombreCampo, campo, TextFieldTableCell.forTableColumn(new LongStringConverter()));
-            }
-        } catch (ClassCastException e) {
-            System.out.println("Error de tipo en la columna: " + columna.getText());
-        }
-    }   
-
-    private <T, U> void configurarColumnaEditable(
-        TableColumn<T, U> columna,
-        String nombreCampo,
-        Field campo,
-        Callback<TableColumn<T, U>, TableCell<T, U>> cellFactory) {
-
-        columna.setCellValueFactory(new PropertyValueFactory<>(nombreCampo));
-        columna.setCellFactory(cellFactory);
-        columna.setOnEditCommit(e -> {
-            try {
-                campo.set(e.getRowValue(), e.getNewValue());
-            } catch (IllegalAccessException ex) {
-                System.out.println("Error al asignar valor: " + ex.getMessage());
-            }
-        });
-    }
-
 }

@@ -18,9 +18,16 @@ public class SolicitudEmpresarial implements SolicitudCredito<Empresa> {
     @Override
     public double getMensualidad(){
 
-        mensualidad = empresa.calcularMensualidad();
+        String tipoEmpresa = empresa.tipoEmpresa();
+
+        double credito = empresa.getValorCredito();
+
+        if(tipoEmpresa.equals("pequena")) mensualidad = credito * 0.2;
+        else if(tipoEmpresa.equals("mediana")) mensualidad = credito * 0.3;
+        else mensualidad = credito * 0.4;
 
         return mensualidad;
+
     }
 
     @Override
