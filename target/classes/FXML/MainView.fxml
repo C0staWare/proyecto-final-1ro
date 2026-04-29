@@ -18,7 +18,7 @@
       <!-- Menú arriba, anclado -->
       <MenuBar styleClass="menubar-style" AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" prefHeight="26.0">
          <menus>
-            <Menu styleClass="menu-style" text="Archivo">
+            <Menu fx:id="menuArchivo" styleClass="menu-style" text="Archivo">
                <items>
                   <MenuItem fx:id="nuevoBtn" styleClass="menuitem-style" onAction="#nuevoArchivo" text="Nuevo" />
                   <MenuItem fx:id="cargarBtn" styleClass="menuitem-style" text="Cargar" />
@@ -26,18 +26,17 @@
                   <MenuItem onAction="#cerrarApp" styleClass="menuitem-style" text="Cerrar" />
                </items>
             </Menu>
-            <Menu styleClass="menu-style" text="Ayuda">
+            <Menu fx:id="menuAyuda" styleClass="menu-style" text="Ayuda">
                <items>
-                  <MenuItem text="Sobre" />
+                  <MenuItem styleClass="menuitem-style" text="Sobre" />
                </items>
             </Menu>
-            <Menu styleClass="menu-style" text="Utilidad">
+            <Menu fx:id="menuUtilidad" styleClass="menu-style" text="Utilidad">
                <items>
-                  <MenuItem fx:id="cambiarEstilo" text="Cambiar Estilo Visual" onAction="#cambiarCSS" />
-                  <MenuItem text="Personas que pueden recibir créditos" onAction="#rendPersonasAcreditables" />
-                  <MenuItem text="Empresas que pueden recibir créditos" onAction="#rendEmpresasAcreditables" />
-                  <MenuItem fx:id="personasTiempo" text="Personas - Tiempo que demorarán en pagar"  />
-                  <MenuItem fx:id="empresasTiempo" text="Empresas - Tiempo que demorarán en pagar" />
+                  <MenuItem styleClass="menuitem-style" text="Personas que pueden recibir créditos" onAction="#rendPersonasAcreditables" />
+                  <MenuItem styleClass="menuitem-style" text="Empresas que pueden recibir créditos" onAction="#rendEmpresasAcreditables" />
+                  <MenuItem styleClass="menuitem-style" fx:id="personasTiempo" text="Personas - Tiempo que demorarán en pagar"  />
+                  <MenuItem styleClass="menuitem-style" fx:id="empresasTiempo" text="Empresas - Tiempo que demorarán en pagar" />
                </items>
             </Menu>
          </menus>

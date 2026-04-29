@@ -32,7 +32,7 @@ public class App extends Application {
 
         stage.setMaximized(true);
 
-        scene.getStylesheets().add(getClass().getResource("/Styles/MainStyle.css").toExternalForm());
+        scene.getStylesheets().add(getClass().getResource("/Styles/Estilo.css").toExternalForm());
 
 
     }

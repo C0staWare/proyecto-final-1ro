@@ -4,9 +4,9 @@ import com.sucursalbancaria.Models.Solicitantes.Persona;
 
 public class SolicitudPersonal implements SolicitudCredito<Persona> {
     
-    Persona persona;
-    double mensualidad;
-    Long id;
+    private Persona persona;
+    private double mensualidad;
+    private Long id;
 
     public SolicitudPersonal(Persona persona){
 

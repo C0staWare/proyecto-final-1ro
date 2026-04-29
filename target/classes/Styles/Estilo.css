@@ -1,8 +1,8 @@
 
-.root {
+/* .root {
     -fx-font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     -fx-background-color: #F4F6F8;
-}
+} */
 
 
 .menubar-style {
@@ -11,43 +11,45 @@
 }
 
 .menubar-style .label {
+
     -fx-text-fill: #FFFFFF; 
     -fx-font-size: 13px;
-}
 
-
-.menubar-style .menu:hover {
-    -fx-background-color: #2C3E50;
-    -fx-cursor: hand;
 }
 
 
 .context-menu {
-    -fx-background-color: #FFFFFF;
-    -fx-border-color: #D1D8E0;
+
+    -fx-background-color: #1A252F;
+    /* -fx-border-color: #D1D8E0; */
     -fx-border-width: 1px;
     -fx-border-radius: 3px;
-    -fx-background-radius: 3px;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.15), 10, 0, 0, 3);
+
 }
+
+
+/* .menuitem-style {
+    -fx-padding: 5 15 5 15;
+} */
 
 .menuitem-style {
-    -fx-padding: 5 15 5 15;
-}
-
-.menuitem-style .label {
-    -fx-text-fill: #333333;
+    -fx-text-fill: #E8F0FE;
     -fx-font-size: 13px;
 }
 
-.menu-item:focused {
-    -fx-background-color: #E8F0FE;
+.menuitem-style:focused {
+
+    -fx-background-color: #616872;
+    -fx-text-fill:  #1A252F;
 }
 
-.menu-item:focused .label {
-    -fx-text-fill: #0056B3;
-}
+.menubar-style .menu-style:focus {
 
+    -fx-background-color: #616872;
+    -fx-text-fill:  #1A252F;
+
+}
 
 .vbox-style {
     -fx-background-color: #FFFFFF;

@@ -5,9 +5,9 @@ import com.sucursalbancaria.Models.Solicitantes.Empresa;
 public class SolicitudEmpresarial implements SolicitudCredito<Empresa> {
     
 
-    Empresa empresa;
-    double mensualidad;
-    Long id;
+    private Empresa empresa;
+    private double mensualidad;
+    private Long id;
 
     public SolicitudEmpresarial(Empresa empresa){
 
