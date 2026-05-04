@@ -4,9 +4,13 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import com.sucursalbancaria.Controllers.Logica.SucursalBancaria;
 import com.sucursalbancaria.Models.Solicitantes.Empresa;
@@ -32,6 +36,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
@@ -42,7 +47,6 @@ import javafx.util.converter.LongStringConverter;
 
 public class MainController {
 
-    
     SucursalBancaria sucursalBancaria = new SucursalBancaria();
 
     @FXML
@@ -127,86 +131,31 @@ public class MainController {
     }
 
     @FXML
-    public void guardarSolicitante() {
+    public void guardarSolicitante() throws Exception {
+        Tab seleccionado = tabPaneObject.getSelectionModel().getSelectedItem();
+        String tipo = seleccionado.getText();
 
-        ObservableList<Solicitante> seleccionados;
+        try{
+            if ("Empresas".equals(tipo)) {
+            procesarSolicitantes(tablaEmpresas.getSelectionModel().getSelectedItems(),
+                    sucursalBancaria.controladorEmpresas::listarEmpresas,
+                    sucursalBancaria.controladorEmpresas::crearEmpresa,
+                    sucursalBancaria.controladorEmpresas::editarEmpresa,
+                    this::tieneCamposValidos,
+                    "empresa");
 
-        Alert alert = new Alert(AlertType.INFORMATION);
-        alert.setTitle("Información");
-        alert.setHeaderText("Error de campos inválidos");
+            } else if ("Personas".equals(tipo)) {
+                procesarSolicitantes(tablaPersonas.getSelectionModel().getSelectedItems(),
+                        sucursalBancaria.controladorPersonas::listarPersonas,
+                        sucursalBancaria.controladorPersonas::agregarPersona,
+                        sucursalBancaria.controladorPersonas::editarPersona,
+                        this::tieneCamposValidos,
+                        "persona");
+            }
 
-        if(tabPaneObject.getSelectionModel().getSelectedItem().getText().equals("Empresas")){
+        } catch(Exception e) {
 
-            seleccionados = FXCollections.observableArrayList(tablaEmpresas.getSelectionModel().getSelectedItems());
-
-            seleccionados.forEach(empresa -> {
-                try{
-
-                    if(tieneCamposValidos((Empresa)empresa)) {
-                        
-                        if(sucursalBancaria.controladorEmpresas.listarEmpresas().contains((Empresa)empresa)){
-
-                            sucursalBancaria.controladorEmpresas.editarEmpresa((Empresa)empresa);
-
-                        }
-                        else{
-
-                            sucursalBancaria.controladorEmpresas.crearEmpresa((Empresa)empresa);
-                        }
-                            
-                    }
-                    else{
-
-                        alert.setContentText("Existen campos con valores no válidos.");
-                        alert.showAndWait();
-                    }
-                }
-                catch(Exception e){
-
-                    alert.setContentText(e.getMessage() + " (empresa en la fila: " + (tablaEmpresas.getItems().indexOf(empresa)+1) + ")");
-                    alert.showAndWait();
-                }
-
-            });
-
-
-        }
-        else{
-
-            seleccionados = FXCollections.observableArrayList(tablaPersonas.getSelectionModel().getSelectedItems());
-
-            seleccionados.forEach(persona -> {
-                try{
-
-                    if(tieneCamposValidos((Persona) persona)){
-
-                        if(sucursalBancaria.controladorPersonas.listarPersonas().contains((Persona)persona)){
-
-                            sucursalBancaria.controladorPersonas.editarPersona((Persona)persona);
-                        }
-                        else{
-                            
-                            sucursalBancaria.controladorPersonas.agregarPersona((Persona)persona);
-
-                        }
-
-                    }
-                    else{
-
-                        alert.setContentText("Existen campos con valores no válidos.");
-                        alert.showAndWait();
-                    }
-                        
-                }
-                catch(Exception e){
-
-                    alert.setContentText(e.getMessage() + " (Persona en la fila: "+ (tablaPersonas.getItems().indexOf(persona)+1) + ")");
-                    alert.showAndWait();
-                    
-                }
-                
-            });
-
+            e.printStackTrace();
         }
     }
 
@@ -239,8 +188,7 @@ public class MainController {
             ObservableList<Empresa> seleccionadas = FXCollections.observableArrayList(tablaEmpresas.getSelectionModel().getSelectedItems());
 
             tablaEmpresas.getItems().removeAll(seleccionadas);
-
-
+            sucursalBancaria.controladorEmpresas.listarEmpresas().removeAll(seleccionadas);
 
         }
         else if(tabSeleccionada.getText().equals("Personas")){
@@ -248,10 +196,7 @@ public class MainController {
             ObservableList<Persona> seleccionadas = FXCollections.observableArrayList(tablaPersonas.getSelectionModel().getSelectedItems());
 
             tablaPersonas.getItems().removeAll(seleccionadas);
-
-        }
-
-        else{
+            sucursalBancaria.controladorPersonas.listarPersonas().removeAll(seleccionadas);
 
         }
     }
@@ -569,6 +514,11 @@ public class MainController {
         alert.setHeaderText("Advertencia");
         alert.setContentText("Este solicitante ya tiene una solicitud activa. ¿Desea sobreescribirla?");
 
+        ButtonType confirm = new ButtonType("Sobreescribir", ButtonData.OK_DONE);
+        ButtonType cancel = new ButtonType("Cancelar", ButtonData.CANCEL_CLOSE);
+
+        alert.getButtonTypes().setAll(confirm, cancel);
+
         Optional<ButtonType> resultado = alert.showAndWait();
 
         if (resultado.isPresent() && resultado.get().getButtonData() == ButtonBar.ButtonData.OK_DONE) {
@@ -632,4 +582,67 @@ public class MainController {
         });
     }
 
+    private <T extends Solicitante> void procesarSolicitantes(
+        List<T> seleccionados,
+        Supplier<List<T>> listar,
+        Consumer<T> crear,
+        Consumer<T> editar,
+        Predicate<T> validar,
+        String tipo) {
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Información");
+        alert.setHeaderText("Error de campos inválidos");
+
+        for (T solicitante : seleccionados) {
+            try {
+                if (!validar.test(solicitante)) {
+                    alert.setContentText("Existen campos con valores no válidos.");
+                    alert.showAndWait();
+                    continue;
+                }
+
+                boolean existe = listar.get().contains(solicitante);
+
+                if (existe) {
+                    
+                    Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+                    confirm.setTitle("Confirmar edición");
+                    confirm.setHeaderText("Este solicitante ya existe");
+                    confirm.setContentText("¿Desea sobrescribir los cambios?");
+
+                    ButtonType sobrescribir = new ButtonType("Sobrescribir");
+                    ButtonType cancelar = new ButtonType("Cancelar", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+                    confirm.getButtonTypes().setAll(sobrescribir, cancelar);
+
+                    Optional<ButtonType> resultado = confirm.showAndWait();
+
+                    if (resultado.isEmpty() || resultado.get() == cancelar) {
+                        continue;
+                    }
+                    editar.accept(solicitante);
+
+                } else {
+                    crear.accept(solicitante);
+                }
+
+            } catch (Exception e) {
+                int fila = obtenerFila(solicitante, tipo);
+                alert.setContentText(e.getMessage() + " (" + tipo + " en la fila: " + fila + ")");
+                alert.showAndWait();
+            }
+        }
+
+        if("Empresa".equalsIgnoreCase(tipo)) tablaEmpresas.refresh();
+        else tablaPersonas.refresh();
+    }
+
+    private int obtenerFila(Solicitante solicitante, String tipo) {
+    if ("empresa".equalsIgnoreCase(tipo)) {
+        return tablaEmpresas.getItems().indexOf(solicitante) + 1;
+    } else {
+        return tablaPersonas.getItems().indexOf(solicitante) + 1;
+    }
+}
 }

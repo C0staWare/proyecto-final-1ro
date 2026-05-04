@@ -16,15 +16,17 @@ public class ControladorPersonas {
 
 
     //crear
-    public void agregarPersona(Persona persona) throws Exception{
+    public void agregarPersona(Persona persona) {
 
+        
         if(!listaPersonas.contains(persona)){
 
-            listaPersonas.add(persona);
+        listaPersonas.add(persona);
 
-            System.out.println("persona agregada con exito");
+        System.out.println("persona agregada con exito");
         }
-        else throw new Exception("esa persona ya existe");
+        
+    
     }
 
     //eliminar

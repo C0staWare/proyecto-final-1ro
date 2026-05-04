@@ -15,16 +15,18 @@ public class ControladorEmpresas {
 
 
     //crear
-    public void crearEmpresa(Empresa empresa) throws Exception {
+    public void crearEmpresa(Empresa empresa){
 
-        if(!listaEmpresas.contains(empresa)){
-
+        try{
+            if(!listaEmpresas.contains(empresa)){
             empresa.comprobarRequisitoGanancia();
             listaEmpresas.add(empresa);
             System.out.println("Empresa agregada con exito");
+            }
+        } catch(Exception e) {
+            System.out.println(e.getMessage());
         }
 
-        else throw new Exception("Empresa ya existe");
     }
 
     //eliminar
