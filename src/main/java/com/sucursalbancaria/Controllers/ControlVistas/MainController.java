@@ -22,7 +22,6 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 public class MainController {
@@ -72,6 +71,8 @@ public class MainController {
                 gestorSolicitantes::tieneCamposValidos,
                 "empresa",
                 tablaEmpresas);
+                tablaEmpresas.refresh();
+                
         } else if ("Personas".equals(tipo)) {
             gestorSolicitantes.procesarSolicitantes(
                 tablaPersonas.getSelectionModel().getSelectedItems(),
@@ -81,7 +82,10 @@ public class MainController {
                 gestorSolicitantes::tieneCamposValidos,
                 "persona",
                 tablaPersonas);
+                tablaPersonas.refresh();
         }
+
+        
     }
 
     @FXML
@@ -202,7 +206,6 @@ public class MainController {
         menuItem.setOnAction(event -> demoraPago(menuItem.getText()));
     }
     
-    // Mapas de columnas (se mantienen igual)
     private Map<String, String> nombresColumnasEmpresa() {
         Map<String, String> nombres = new HashMap<>();
         nombres.put("Nombre", "nombreSolicitante");

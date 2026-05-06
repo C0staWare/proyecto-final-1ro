@@ -84,8 +84,7 @@ public class GestorSolicitantes {
             return tablaPersonas.getItems().indexOf(solicitante) + 1;
         }
     }
-    
-    // Métodos de validación
+
     public boolean tieneCamposValidos(Empresa e) {
         return e.getNombreSolicitante() != null && !e.getNombreSolicitante().isEmpty()
             && e.getValorCredito() != null
@@ -102,7 +101,7 @@ public class GestorSolicitantes {
         return p.getNombreSolicitante() != null && !p.getNombreSolicitante().isEmpty()
             && p.getValorCredito() != null
             && p.getDireccionSolicitante() != null && !p.getDireccionSolicitante().isEmpty()
-            && p.getCI() != null
+            && !p.getCI().isEmpty()
             && p.getPersonasQueSustenta() >= 1
             && p.getSalarioNucleo() > 0;
     }

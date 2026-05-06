@@ -92,7 +92,7 @@ public class ControladorEmpresas {
     }
 
     //utilidad
-    public void ordenarPorCodigo(List<Empresa> lista, int low, int high){
+    public void ordenarPorCodigo(List<Empresa> lista, int low, int high) {
 
         if(low < high){
 
@@ -101,6 +101,7 @@ public class ControladorEmpresas {
             ordenarPorCodigo(lista, low, pivote - 1);
             ordenarPorCodigo(lista, pivote + 1, high);
         }
+        
     }
 
     public int partirLista(List<Empresa> lista, int low, int high) {

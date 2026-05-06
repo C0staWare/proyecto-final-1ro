@@ -1,8 +1,8 @@
 package com.sucursalbancaria.Models.Solicitantes;
 
-public class Persona extends Solicitante {
+public class Persona extends Solicitante implements Comparable<Persona> {
     
-    private Long CI;
+    private String CI;
     private double salarioNucleo;
     private int personasQueSustenta = 1;
 
@@ -10,12 +10,12 @@ public class Persona extends Solicitante {
     public Persona() throws Exception{
 
         super("", 0.0, "");
-        CI = 0L;
+        CI = "";
         salarioNucleo = 0.0;
         personasQueSustenta = 1;
     }
 
-    public Persona(String nombreSolicitante, double valorCredito, String direccionSolicitante, Long CI,
+    public Persona(String nombreSolicitante, double valorCredito, String direccionSolicitante, String CI,
             double salarioNucleo, int personasQueSustenta) throws Exception {
 
         super(nombreSolicitante, valorCredito, direccionSolicitante);
@@ -38,13 +38,13 @@ public class Persona extends Solicitante {
         return salarioNucleo - (personasQueSustenta * 50);
     }
 
-    public Long getCI() {
+    public String getCI() {
         return CI;
     }
 
 
 
-    public void setCI(Long cI) {
+    public void setCI(String cI) {
         CI = cI;
     }
 
@@ -92,5 +92,13 @@ public class Persona extends Solicitante {
 
         return resultado;
     }
+
+    @Override
+
+    public int compareTo(Persona otra){
+
+        return this.getCI().compareTo(otra.getCI());
+    }
+
     
 }
