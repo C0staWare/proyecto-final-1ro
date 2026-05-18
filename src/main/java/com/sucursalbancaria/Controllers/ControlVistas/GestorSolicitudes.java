@@ -1,7 +1,6 @@
 package com.sucursalbancaria.Controllers.ControlVistas;
 
 import com.sucursalbancaria.Models.Solicitudes.*;
-
 import java.util.function.Function;
 import com.sucursalbancaria.Controllers.Logica.ControladorSolicitud;
 import com.sucursalbancaria.Models.Solicitantes.Empresa;
@@ -33,7 +32,10 @@ public class GestorSolicitudes {
             Function<T, SolicitudCredito<T>> creadorSolicitud,
             ControladorSolicitud<T> controlador) {
         
-        if (solicitante == null) return;
+        if (solicitante == null) {
+            UtilidadesVista.mostrarAdvertencia("Sin selección", "Debe seleccionar un solicitante primero");
+            return;
+        }
         
         boolean existe = controlador.existeSolicitud(solicitante);
         
@@ -41,6 +43,7 @@ public class GestorSolicitudes {
             SolicitudCredito<T> nueva = creadorSolicitud.apply(solicitante);
             controlador.listarSolicitudes().add(nueva);
             tablaSolicitudes.getItems().add(nueva);
+            UtilidadesVista.mostrarInfo("Éxito", "Solicitud creada correctamente");
             return;
         }
         
@@ -48,6 +51,7 @@ public class GestorSolicitudes {
             SolicitudCredito<T> nueva = creadorSolicitud.apply(solicitante);
             controlador.editarSolicitud(nueva);
             tablaSolicitudes.getItems().setAll(controlador.listarSolicitudes());
+            UtilidadesVista.mostrarInfo("Éxito", "Solicitud actualizada correctamente");
         }
     }
 }

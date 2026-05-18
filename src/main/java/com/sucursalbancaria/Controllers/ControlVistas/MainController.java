@@ -1,18 +1,19 @@
 package com.sucursalbancaria.Controllers.ControlVistas;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
+import com.sucursalbancaria.Controllers.Logica.PersistenciaArchivo;
 import com.sucursalbancaria.Controllers.Logica.SucursalBancaria;
 import com.sucursalbancaria.Models.Solicitantes.Empresa;
 import com.sucursalbancaria.Models.Solicitantes.Persona;
 import com.sucursalbancaria.Models.Solicitantes.Solicitante;
 import com.sucursalbancaria.Models.Solicitudes.SolicitudCredito;
 import com.sucursalbancaria.Models.Solicitudes.SolicitudEmpresarial;
+import com.sucursalbancaria.Models.Solicitudes.SolicitudPersonal;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -31,7 +32,8 @@ public class MainController {
     private GestorSolicitudes gestorSolicitudes;
 
     @FXML private TabPane tabPaneObject;
-    @FXML private MenuItem nuevoBtn, personasTiempo, empresasTiempo;
+    @FXML private MenuItem personasTiempo, empresasTiempo;
+    @FXML private MenuItem guardarEstadoMenuItem, cargarEstadoMenuItem;
     @FXML private TableView<Empresa> tablaEmpresas;
     @FXML private TableView<Persona> tablaPersonas;
     @FXML private TableView<SolicitudCredito<? extends Solicitante>> tablaSolicitudes;
@@ -45,9 +47,25 @@ public class MainController {
         configurarTabla(tablaEmpresas, nombresColumnasEmpresa(), Empresa.class);
         configurarTabla(tablaPersonas, nombresColumnasPersona(), Persona.class);
         configurarTabla(tablaSolicitudes, nombresColumnasSolicitud(), SolicitudEmpresarial.class);
+        configurarTabla(tablaSolicitudes, nombresColumnasSolicitud(), SolicitudPersonal.class);
         
         manejarAccionBotonesTiempo(personasTiempo);
         manejarAccionBotonesTiempo(empresasTiempo);
+        
+        // Cargar datos guardados automáticamente al iniciar
+        if(PersistenciaArchivo.existenDatosGuardados()) {
+            try {
+                PersistenciaArchivo.cargarTodo(
+                    sucursalBancaria.controladorEmpresas,
+                    sucursalBancaria.controladorPersonas,
+                    sucursalBancaria.controladorSolicitudEmpresarial,
+                    sucursalBancaria.controladorSolicitudPersonal
+                );
+                actualizarTablasDesdeDatosCargados();
+            } catch (IOException | ClassNotFoundException e) {
+                System.out.println("No se pudieron cargar datos previos: " + e.getMessage());
+            }
+        }
     }
     
     private <T> void configurarTabla(TableView<?> tabla, Map<String, String> columnas, Class<T> clazz) {
@@ -72,7 +90,7 @@ public class MainController {
                 "empresa",
                 tablaEmpresas);
                 tablaEmpresas.refresh();
-                
+
         } else if ("Personas".equals(tipo)) {
             gestorSolicitantes.procesarSolicitantes(
                 tablaPersonas.getSelectionModel().getSelectedItems(),
@@ -84,8 +102,6 @@ public class MainController {
                 tablaPersonas);
                 tablaPersonas.refresh();
         }
-
-        
     }
 
     @FXML
@@ -120,41 +136,162 @@ public class MainController {
     }
 
     @FXML
-    public void nuevoArchivo() {
-        Optional<String> resultado = UtilidadesVista.pedirNombreArchivo();
-        
-        resultado.ifPresent(nombre -> {
-            File carpeta = new File("Datos");
-            if (!carpeta.exists()) carpeta.mkdir();
-            
-            File archivo = new File(carpeta, nombre + ".bin");
-            try {
-                if (archivo.createNewFile()) {
-                    UtilidadesVista.mostrarInfo("Éxito", "Archivo creado correctamente");
-                } else {
-                    UtilidadesVista.mostrarError("Error", "No se pudo crear el archivo");
-                }
-            } catch (IOException err) {
-                UtilidadesVista.mostrarError("Error", err.getMessage());
-            }
-        });
-    }
-
-    @FXML
     public void cerrarApp() {
         System.exit(0);
     }
 
+    // Requisito 4: Personas que pueden recibir crédito
     @FXML
     public void rendPersonasAcreditables() {
-        crearTabResultados("Personas que pueden recibir créditos", 
+        crearTabResultados("Personas que pueden recibir créditos (Capacidad >= 100)", 
             sucursalBancaria.controladorPersonas.puedenRecibirCredito());
     }
 
+    // Requisito 5: Empresas que pueden recibir crédito (ordenadas por ministerio y código)
     @FXML
     public void rendEmpresasAcreditables() {
-        crearTabResultados("Empresas que pueden recibir créditos", 
+        crearTabResultados("Empresas que pueden recibir créditos (por ministerio y código)", 
             sucursalBancaria.controladorEmpresas.puedenRecibirCredito());
+    }
+    
+    // Requisito 6: Tiempo de pago por persona (CI y tiempo)
+    @FXML
+    public void listadoTiemposPagoPersonas() {
+        if(tabExiste("Tiempos de pago - Personas")) return;
+        
+        Tab tab = new Tab("Tiempos de pago - Personas");
+        TableView<Object[]> tableView = new TableView<>();
+        
+        TableColumn<Object[], String> colCI = new TableColumn<>("Carné de Identidad");
+        TableColumn<Object[], Integer> colTiempo = new TableColumn<>("Tiempo (días)");
+        
+        colCI.setCellValueFactory(cellData -> 
+            new javafx.beans.property.SimpleStringProperty((String)cellData.getValue()[0]));
+        colTiempo.setCellValueFactory(cellData -> 
+            new javafx.beans.property.SimpleIntegerProperty((Integer)cellData.getValue()[1]).asObject());
+        
+        // Cargar datos
+        javafx.collections.ObservableList<Object[]> datos = FXCollections.observableArrayList();
+        for(Map.Entry<String, Integer> entry : sucursalBancaria.controladorPersonas.getTiemposPagoPersonas().entrySet()) {
+            datos.add(new Object[]{entry.getKey(), entry.getValue()});
+        }
+        tableView.setItems(datos);
+        
+        tableView.getColumns().addAll(colCI, colTiempo);
+        tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+        
+        tab.setContent(tableView);
+        tabPaneObject.getTabs().add(tab);
+    }
+    
+    // Requisito 7: Personas con capacidad de pago > 200
+    @FXML
+    public void listadoCapacidadPagoMayor200() {
+        if(tabExiste("Capacidad de pago > 200")) return;
+        
+        Tab tab = new Tab("Capacidad de pago > 200");
+        TableView<Persona> tableView = new TableView<>();
+        
+        TableColumn<Persona, String> colNombre = new TableColumn<>("Nombre");
+        TableColumn<Persona, String> colCI = new TableColumn<>("Carné de Identidad");
+        TableColumn<Persona, Double> colCapacidad = new TableColumn<>("Capacidad de Pago");
+
+        TablaConfigurador.configurarColumnaDouble(colCapacidad, "Capacidad de Pago");
+        
+        colNombre.setCellValueFactory(new PropertyValueFactory<>("nombreSolicitante"));
+        colCI.setCellValueFactory(new PropertyValueFactory<>("CI"));
+        colCapacidad.setCellValueFactory(new PropertyValueFactory<>("capacidadPago"));
+        
+        tableView.getColumns().addAll(colNombre, colCI, colCapacidad);
+        tableView.setItems(FXCollections.observableArrayList(
+            sucursalBancaria.controladorPersonas.personasCapacidadMayor200()));
+        tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+        
+        tab.setContent(tableView);
+        tabPaneObject.getTabs().add(tab);
+    }
+    
+    // Requisito 8: Tiempo de pago por empresa
+    @FXML
+    public void listadoTiemposPagoEmpresas() {
+        if(tabExiste("Tiempos de pago - Empresas")) return;
+        
+        Tab tab = new Tab("Tiempos de pago - Empresas");
+        TableView<Object[]> tableView = new TableView<>();
+        
+        TableColumn<Object[], String> colEmpresa = new TableColumn<>("Empresa");
+        TableColumn<Object[], Integer> colTiempo = new TableColumn<>("Tiempo (días)");
+        
+        colEmpresa.setCellValueFactory(cellData -> 
+            new javafx.beans.property.SimpleStringProperty((String)cellData.getValue()[0]));
+        colTiempo.setCellValueFactory(cellData -> 
+            new javafx.beans.property.SimpleIntegerProperty((Integer)cellData.getValue()[1]).asObject());
+        
+        // Cargar datos
+        javafx.collections.ObservableList<Object[]> datos = FXCollections.observableArrayList();
+        for(Map.Entry<String, Integer> entry : sucursalBancaria.controladorEmpresas.getTiemposPagoEmpresas().entrySet()) {
+            datos.add(new Object[]{entry.getKey(), entry.getValue()});
+        }
+        tableView.setItems(datos);
+        
+        tableView.getColumns().addAll(colEmpresa, colTiempo);
+        tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+        
+        tab.setContent(tableView);
+        tabPaneObject.getTabs().add(tab);
+    }
+    
+    // Requisito 9: Guardar estado
+    @FXML
+    public void guardarEstado() {
+        try {
+            PersistenciaArchivo.guardarTodo(
+                sucursalBancaria.controladorEmpresas,
+                sucursalBancaria.controladorPersonas,
+                sucursalBancaria.controladorSolicitudEmpresarial,
+                sucursalBancaria.controladorSolicitudPersonal
+            );
+            UtilidadesVista.mostrarInfo("Éxito", "Estado guardado correctamente");
+        } catch (IOException e) {
+            UtilidadesVista.mostrarError("Error al guardar", e.getMessage());
+        }
+    }
+    
+    // Requisito 9: Cargar estado
+    @FXML
+    public void cargarEstado() {
+        try {
+            PersistenciaArchivo.cargarTodo(
+                sucursalBancaria.controladorEmpresas,
+                sucursalBancaria.controladorPersonas,
+                sucursalBancaria.controladorSolicitudEmpresarial,
+                sucursalBancaria.controladorSolicitudPersonal
+            );
+            actualizarTablasDesdeDatosCargados();
+            UtilidadesVista.mostrarInfo("Éxito", "Estado cargado correctamente");
+        } catch (IOException | ClassNotFoundException e) {
+            UtilidadesVista.mostrarError("Error al cargar", e.getMessage());
+        }
+    }
+    
+    private void actualizarTablasDesdeDatosCargados() {
+        tablaEmpresas.getItems().clear();
+        tablaEmpresas.getItems().addAll(sucursalBancaria.controladorEmpresas.listarEmpresas());
+        
+        tablaPersonas.getItems().clear();
+        tablaPersonas.getItems().addAll(sucursalBancaria.controladorPersonas.listarPersonas());
+        
+        tablaSolicitudes.getItems().clear();
+        for(SolicitudCredito<Empresa> s : sucursalBancaria.controladorSolicitudEmpresarial.listarSolicitudes()) {
+            tablaSolicitudes.getItems().add(s);
+        }
+        for(SolicitudCredito<Persona> s : sucursalBancaria.controladorSolicitudPersonal.listarSolicitudes()) {
+            tablaSolicitudes.getItems().add(s);
+        }
+        
+        tablaEmpresas.refresh();
+        tablaPersonas.refresh();
+        tablaSolicitudes.refresh();
     }
     
     private <T> void crearTabResultados(String titulo, java.util.List<T> items) {
@@ -174,34 +311,12 @@ public class MainController {
 
     public void demoraPago(String texto) {
         if (texto.contains("Personas")) {
-            mostrarTabTiempo("Personas - Tiempo que demorarán en pagar", 
-                tablaPersonas.getItems(), "nombreSolicitante", "demoraPago");
+            listadoTiemposPagoPersonas();
         } else if (texto.contains("Empresas")) {
-            mostrarTabTiempo("Empresas - Tiempo que demorarán en pagar", 
-                tablaEmpresas.getItems(), "nombreSolicitante", "demoraPago");
+            listadoTiemposPagoEmpresas();
         }
     }
     
-    private <T> void mostrarTabTiempo(String titulo, javafx.collections.ObservableList<T> items, 
-                                      String campoNombre, String campoTiempo) {
-        if (tabExiste(titulo)) return;
-        
-        Tab tab = new Tab(titulo);
-        TableView<T> tableView = new TableView<>();
-        TableColumn<T, String> colNombre = new TableColumn<>("Nombre");
-        TableColumn<T, Integer> colTiempo = new TableColumn<>("Tiempo (días)");
-        
-        colNombre.setCellValueFactory(new PropertyValueFactory<>(campoNombre));
-        colTiempo.setCellValueFactory(new PropertyValueFactory<>(campoTiempo));
-        
-        tableView.getColumns().addAll(colNombre, colTiempo);
-        tableView.setItems(items);
-        tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
-        
-        tab.setContent(tableView);
-        tabPaneObject.getTabs().add(tab);
-    }
-
     private void manejarAccionBotonesTiempo(MenuItem menuItem) {
         menuItem.setOnAction(event -> demoraPago(menuItem.getText()));
     }
@@ -239,4 +354,20 @@ public class MainController {
         nombres.put("Mensualidad", "mensualidad");
         return nombres;
     }
+
+    @FXML
+    public void mostrarAcercaDe() {
+        UtilidadesVista.mostrarInfo("Acerca de", 
+            "Sucursal Bancaria\nVersión 1.0\n\n" +
+            "Requisitos implementados:\n" +
+            "CRUD de empresas, personas y solicitudes\n" +
+            "Personas que pueden recibir crédito (ordenado por CI)\n" +
+            "Empresas que pueden recibir crédito (por ministerio y código)\n" +
+            "Listado con CI y tiempo de pago de personas\n" +
+            "Personas con capacidad de pago > 200\n" +
+            "Listado por empresa y tiempo de pago\n" +
+            "Persistencia en ficheros\n" +
+            "Interfaz gráfica con JavaFX");
+    }
+
 }

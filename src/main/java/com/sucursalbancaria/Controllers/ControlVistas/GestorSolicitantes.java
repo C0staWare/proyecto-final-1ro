@@ -35,10 +35,8 @@ public class GestorSolicitantes {
                                           Supplier<List<Persona>> listarPersonas) {
         if ("Empresas".equals(tipo)) {
             tablaEmpresas.getItems().removeAll(empresasSeleccionadas);
-            listarEmpresas.get().removeAll(empresasSeleccionadas);
         } else if ("Personas".equals(tipo)) {
             tablaPersonas.getItems().removeAll(personasSeleccionadas);
-            listarPersonas.get().removeAll(personasSeleccionadas);
         }
     }
     
@@ -69,39 +67,30 @@ public class GestorSolicitantes {
                     crear.accept(solicitante);
                 }
             } catch (Exception e) {
-                int fila = obtenerFila(solicitante, tipo);
-                UtilidadesVista.mostrarError("Error", e.getMessage() + " (" + tipo + " en la fila: " + fila + ")");
+                UtilidadesVista.mostrarError("Error", e.getMessage());
             }
         }
         
         tabla.refresh();
     }
-    
-    private int obtenerFila(Solicitante solicitante, String tipo) {
-        if ("empresa".equalsIgnoreCase(tipo)) {
-            return tablaEmpresas.getItems().indexOf(solicitante) + 1;
-        } else {
-            return tablaPersonas.getItems().indexOf(solicitante) + 1;
-        }
-    }
 
     public boolean tieneCamposValidos(Empresa e) {
         return e.getNombreSolicitante() != null && !e.getNombreSolicitante().isEmpty()
-            && e.getValorCredito() != null
+            && e.getValorCredito() != null && e.getValorCredito() > 0
             && e.getDireccionSolicitante() != null && !e.getDireccionSolicitante().isEmpty()
             && e.getDireccionDirector() != null && !e.getDireccionDirector().isEmpty()
             && e.getNombreDirector() != null && !e.getNombreDirector().isEmpty()
-            && e.getGananciaPromedioAnual() != null
-            && e.getCantidadTrabajadores() != 0
+            && e.getGananciaPromedioAnual() != null && e.getGananciaPromedioAnual() > 0
+            && e.getCantidadTrabajadores() > 0
             && e.getCodigo() != null
             && e.getMinisterio() != null && !e.getMinisterio().isEmpty();
     }
     
     public boolean tieneCamposValidos(Persona p) {
         return p.getNombreSolicitante() != null && !p.getNombreSolicitante().isEmpty()
-            && p.getValorCredito() != null
+            && p.getValorCredito() != null && p.getValorCredito() > 0
             && p.getDireccionSolicitante() != null && !p.getDireccionSolicitante().isEmpty()
-            && !p.getCI().isEmpty()
+            && p.getCI() != null && !p.getCI().isEmpty()
             && p.getPersonasQueSustenta() >= 1
             && p.getSalarioNucleo() > 0;
     }

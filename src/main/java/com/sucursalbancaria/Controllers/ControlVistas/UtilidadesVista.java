@@ -38,11 +38,9 @@ public class UtilidadesVista {
         alert.setTitle(titulo);
         alert.setHeaderText(null);
         alert.setContentText(mensaje);
-        
         ButtonType si = new ButtonType("Sí", ButtonBar.ButtonData.OK_DONE);
         ButtonType no = new ButtonType("No", ButtonBar.ButtonData.CANCEL_CLOSE);
         alert.getButtonTypes().setAll(si, no);
-        
         Optional<ButtonType> resultado = alert.showAndWait();
         return resultado.isPresent() && resultado.get().getButtonData() == ButtonBar.ButtonData.OK_DONE;
     }
@@ -59,12 +57,10 @@ public class UtilidadesVista {
     }
     
     public static boolean confirmarSobrescritura(String tipo) {
-        return confirmar("Confirmar edición", 
-            "Este " + tipo + " ya existe. ¿Desea sobrescribir los cambios?");
+        return confirmar("Confirmar edición", "Este " + tipo + " ya existe. ¿Desea sobrescribir los cambios?");
     }
     
     public static boolean confirmarSobrescrituraSolicitud() {
-        return confirmar("Advertencia", 
-            "Este solicitante ya tiene una solicitud activa. ¿Desea sobreescribirla?");
+        return confirmar("Advertencia", "Este solicitante ya tiene una solicitud activa. ¿Desea sobreescribirla?");
     }
 }

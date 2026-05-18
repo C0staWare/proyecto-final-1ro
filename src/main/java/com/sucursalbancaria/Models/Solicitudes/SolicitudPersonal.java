@@ -1,28 +1,24 @@
 package com.sucursalbancaria.Models.Solicitudes;
 
 import com.sucursalbancaria.Models.Solicitantes.Persona;
+import java.io.Serializable;
 
-public class SolicitudPersonal implements SolicitudCredito<Persona> {
+public class SolicitudPersonal implements SolicitudCredito<Persona>, Serializable {
+    
+    private static final long serialVersionUID = 1L;
     
     private Persona persona;
     private double mensualidad;
     private Long id;
 
     public SolicitudPersonal(Persona persona){
-
         this.persona = persona;
         id = System.currentTimeMillis();
     }
 
     @Override
     public double getMensualidad() {
-        
-        double capacidadPago = persona.capacidadPago();
-
-        if(capacidadPago >= 100 && capacidadPago <= 120 ) mensualidad = 30.0;
-        else if(capacidadPago > 120 && capacidadPago <= 140) mensualidad = 40.0;
-        else mensualidad = 50.0;
-        
+        mensualidad = persona.calcularMensualidad();
         return mensualidad;
     }
 
@@ -32,9 +28,7 @@ public class SolicitudPersonal implements SolicitudCredito<Persona> {
     }
 
     @Override
-
     public Persona getSolicitante(){
-
         return persona;
     }
 
@@ -44,19 +38,16 @@ public class SolicitudPersonal implements SolicitudCredito<Persona> {
 
     @Override
     public String getTipoSolicitud(){
-
         return "Personal";
     }
 
     @Override
     public String getNombreSolicitante(){
-
         return persona.getNombreSolicitante();
     }
 
     @Override
     public String getEstadoSolicitud(){
-
         if(persona.capacidadPago() < 100) return "Rechazada";
         else return "Aprobada";
     }

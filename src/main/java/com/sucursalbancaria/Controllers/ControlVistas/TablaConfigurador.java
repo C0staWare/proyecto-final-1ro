@@ -1,6 +1,7 @@
 package com.sucursalbancaria.Controllers.ControlVistas;
 
 import java.lang.reflect.Field;
+import javafx.util.converter.*;
 import java.util.Map;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -8,11 +9,18 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.Callback;
-import javafx.util.converter.DoubleStringConverter;
-import javafx.util.converter.IntegerStringConverter;
-import javafx.util.converter.LongStringConverter;
 
 public class TablaConfigurador {
+
+    public static <T> void configurarColumnaDouble(TableColumn<T, Double> columna, String nombreCampo) {
+
+        columna.setCellValueFactory(new PropertyValueFactory<>(nombreCampo));
+        columna.setCellFactory(TextFieldTableCell.forTableColumn(DOUBLE_CONVERTER));
+        
+    }
+    
+    // Formateador que evita la notación científica
+    private static final DoubleSinNotacionConverter DOUBLE_CONVERTER = new DoubleSinNotacionConverter();
     
     public static <T> void configurarColumnas(TableView<?> tabla, 
                                                Map<String, String> nombresColumnas, 
@@ -67,7 +75,16 @@ public class TablaConfigurador {
                 configurarColumnaEditable(c, nombreCampo, campo, TextFieldTableCell.forTableColumn());
             } else if (campo.getType() == Double.class || campo.getType() == double.class) {
                 TableColumn<T, Double> c = (TableColumn<T, Double>) columna;
-                configurarColumnaEditable(c, nombreCampo, campo, TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+                // Usar el converter que evita notación científica
+                c.setCellValueFactory(new PropertyValueFactory<>(nombreCampo));
+                c.setCellFactory(TextFieldTableCell.forTableColumn(DOUBLE_CONVERTER));
+                c.setOnEditCommit(e -> {
+                    try {
+                        campo.set(e.getRowValue(), e.getNewValue());
+                    } catch (IllegalAccessException ex) {
+                        System.out.println("Error al asignar valor: " + ex.getMessage());
+                    }
+                });
             } else if (campo.getType() == Integer.class || campo.getType() == int.class) {
                 TableColumn<T, Integer> c = (TableColumn<T, Integer>) columna;
                 configurarColumnaEditable(c, nombreCampo, campo, TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
@@ -81,16 +98,35 @@ public class TablaConfigurador {
     }
     
     private static <T, U> void configurarColumnaEditable(
-            TableColumn<T, U> columna, String nombreCampo, Field campo,
-            Callback<TableColumn<T, U>, TableCell<T, U>> cellFactory) {
+        TableColumn<T, U> columna, String nombreCampo, Field campo,
+        Callback<TableColumn<T, U>, TableCell<T, U>> cellFactory) {
+
         columna.setCellValueFactory(new PropertyValueFactory<>(nombreCampo));
         columna.setCellFactory(cellFactory);
         columna.setOnEditCommit(e -> {
             try {
-                campo.set(e.getRowValue(), e.getNewValue());
+                Object nuevoValor = e.getNewValue();
+
+                if (campo.getType() == String.class &&
+                    (nombreCampo.equalsIgnoreCase("CI"))) {
+
+                    String valor = nuevoValor != null ? nuevoValor.toString() : "";
+                    valor = valor.trim().toUpperCase();
+
+                    if (valor.matches("\\d+")) {
+                        System.out.println("Error: el valor solo debe contener números.");
+                        return;
+                    }
+
+                    nuevoValor = valor;
+                }
+
+                campo.set(e.getRowValue(), nuevoValor);
+
             } catch (IllegalAccessException ex) {
                 System.out.println("Error al asignar valor: " + ex.getMessage());
             }
         });
     }
+
 }

@@ -1,13 +1,20 @@
 
-/* .root {
+.root {
     -fx-font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     -fx-background-color: #F4F6F8;
-} */
+}
 
 
 .menubar-style {
     -fx-background-color: #1A252F;
     -fx-padding: 2 5 2 5;
+}
+
+.menubar-style .menu:: {
+
+    -fx-background-color: #616872;
+    -fx-text-fill:  #1A252F;
+
 }
 
 .menubar-style .label {

@@ -8,6 +8,7 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.AnchorPane?>
 
@@ -15,28 +16,30 @@
             fx:controller="com.sucursalbancaria.Controllers.ControlVistas.MainController">
 
    <children>
-      <!-- Menú arriba, anclado -->
       <MenuBar styleClass="menubar-style" AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" prefHeight="26.0">
          <menus>
             <Menu fx:id="menuArchivo" styleClass="menu-style" text="Archivo">
                <items>
-                  <MenuItem fx:id="nuevoBtn" styleClass="menuitem-style" onAction="#nuevoArchivo" text="Nuevo" />
-                  <MenuItem fx:id="cargarBtn" styleClass="menuitem-style" text="Cargar" />
-                  <MenuItem styleClass="menuitem-style" text="Guardar" />
+                  <MenuItem fx:id="cargarEstadoMenuItem" styleClass="menuitem-style" onAction="#cargarEstado" text="Cargar Estado" />
+                  <MenuItem fx:id="guardarEstadoMenuItem" styleClass="menuitem-style" onAction="#guardarEstado" text="Guardar Estado" />
+                  <SeparatorMenuItem />
                   <MenuItem onAction="#cerrarApp" styleClass="menuitem-style" text="Cerrar" />
-               </items>
-            </Menu>
-            <Menu fx:id="menuAyuda" styleClass="menu-style" text="Ayuda">
-               <items>
-                  <MenuItem styleClass="menuitem-style" text="Sobre" />
                </items>
             </Menu>
             <Menu fx:id="menuUtilidad" styleClass="menu-style" text="Utilidad">
                <items>
                   <MenuItem styleClass="menuitem-style" text="Personas que pueden recibir créditos" onAction="#rendPersonasAcreditables" />
                   <MenuItem styleClass="menuitem-style" text="Empresas que pueden recibir créditos" onAction="#rendEmpresasAcreditables" />
-                  <MenuItem styleClass="menuitem-style" fx:id="personasTiempo" text="Personas - Tiempo que demorarán en pagar"  />
-                  <MenuItem styleClass="menuitem-style" fx:id="empresasTiempo" text="Empresas - Tiempo que demorarán en pagar" />
+                  <SeparatorMenuItem />
+                  <MenuItem styleClass="menuitem-style" text="Personas con capacidad de pago > 200" onAction="#listadoCapacidadPagoMayor200" />
+                  <SeparatorMenuItem />
+                  <MenuItem fx:id="personasTiempo" styleClass="menuitem-style" text="Personas - Tiempo que demorarán en pagar" onAction="#listadoTiemposPagoPersonas" />
+                  <MenuItem fx:id="empresasTiempo" styleClass="menuitem-style" text="Empresas - Tiempo que demorarán en pagar" onAction="#listadoTiemposPagoEmpresas" />
+               </items>
+            </Menu>
+            <Menu fx:id="menuAyuda" styleClass="menu-style" text="Ayuda">
+               <items>
+                  <MenuItem styleClass="menuitem-style" onAction="#mostrarAcercaDe" text="Acerca de" />
                </items>
             </Menu>
          </menus>
@@ -90,13 +93,12 @@
          </tabs>
       </TabPane>
 
-      <!-- VBox a la derecha, anclado -->
-      <VBox styleClass="vbox-style" AnchorPane.topAnchor="26.0" AnchorPane.rightAnchor="0.0" AnchorPane.bottomAnchor="0.0" prefWidth="200.0">
+      <VBox styleClass="vbox-style" AnchorPane.topAnchor="26.0" AnchorPane.rightAnchor="0.0" AnchorPane.bottomAnchor="0.0" prefWidth="200.0" spacing="10">
          <children>
             <Button fx:id="nuevaFila" onAction="#agregarFila" styleClass="button-style" text="Añadir Fila" maxWidth="Infinity" />
             <Button fx:id="eliminarFila" onAction="#eliminarFilaSeleccionada" styleClass="button-style" text="Eliminar Fila" maxWidth="Infinity" />
             <Button fx:id="guardarFilas" onAction="#guardarSolicitante" styleClass="button-style" text="Guardar Filas" maxWidth="Infinity"/>
-            <Button fx:id="nevaSolicitud" onAction="#agregarSolicitud" styleClass="button-style" text="Solicitud de Crédito" maxWidth="Infinity"/>
+            <Button fx:id="nuevaSolicitud" onAction="#agregarSolicitud" styleClass="button-style" text="Solicitud de Crédito" maxWidth="Infinity"/>
          </children>
       </VBox>
    </children>
